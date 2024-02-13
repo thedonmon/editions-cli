@@ -13,13 +13,13 @@ import {
   TOKEN_2022_PROGRAM_ID,
   getAssociatedTokenAddressSync,
 } from "spl-token-4";
-import { getProgramInstanceEditions } from "anchor/editions/getProgramInstanceEditions";
-import { EditionsDeployment } from "anchor/editions/accounts";
+import { getProgramInstanceEditions } from "../anchor/editions/getProgramInstanceEditions";
+import { EditionsDeployment } from "../anchor/editions/accounts";
 import { sendSignedTransaction } from "./tx_utils";
-import { IExecutorParams } from "cli/IExecutorParams";
-import { IRpcObject } from "utils/IRpcObject";
-import { getHashlistPda } from "anchor/editions/pdas/getHashlistPda";
-import { getHashlistMarkerPda } from "anchor/editions/pdas/getHashlistMarkerPda";
+import { IExecutorParams } from "../cli/IExecutorParams";
+import { IRpcObject } from "../utils/IRpcObject";
+import { getHashlistPda } from "../anchor/editions/pdas/getHashlistPda";
+import { getHashlistMarkerPda } from "../anchor/editions/pdas/getHashlistMarkerPda";
 
 export const PROGRAM_ID_LEGACY_METADATA = new PublicKey(
   "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"

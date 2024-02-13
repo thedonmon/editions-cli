@@ -8,11 +8,11 @@ import {
 import BN from "bn.js";
 
 import { TOKEN_2022_PROGRAM_ID } from "spl-token-4";
-import { getProgramInstanceEditions } from "anchor/editions/getProgramInstanceEditions";
-import { getEditionsPda } from "anchor/editions/pdas/getEditionsPda";
+import { getProgramInstanceEditions } from "../anchor/editions/getProgramInstanceEditions";
+import { getEditionsPda } from "../anchor/editions/pdas/getEditionsPda";
 import { IExecutorParams } from "../cli/IExecutorParams";
 import { sendSignedTransaction } from "./tx_utils";
-import { getHashlistPda } from "anchor/editions/pdas/getHashlistPda";
+import { getHashlistPda } from "../anchor/editions/pdas/getHashlistPda";
 
 export interface IInitializeLaunch {
   symbol: string;
@@ -35,6 +35,8 @@ export const createDeployment = async ({
   const editionsPda = getEditionsPda(symbol);
 
   const groupMint = Keypair.generate();
+
+  console.log({groupMint: groupMint.publicKey.toBase58()})
 
   const hashlist = getHashlistPda(editionsPda)[0];
 

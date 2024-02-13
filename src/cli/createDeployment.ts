@@ -1,11 +1,11 @@
 export {};
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 
-import { createDeployment } from "sdk/createDeployment";
+import { createDeployment } from "../sdk/createDeployment";
 import { Wallet as AnchorWallet, Program } from "@coral-xyz/anchor";
 import fs from "fs";
 import { Command } from "commander";
-import { LibreWallet } from "anchor/LibreWallet";
+import { LibreWallet } from "../anchor/LibreWallet";
 
 const cli = new Command();
 

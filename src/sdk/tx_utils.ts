@@ -31,6 +31,8 @@ export async function sendSignedTransaction({
         },
     );
 
+    console.log({txid});
+
     let done = false;
     (async () => {
         while (!done && Date.now() - startTime < timeout) {

@@ -1,13 +1,12 @@
-
 export {};
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 
 import fs from "fs";
 import { Command } from "commander";
-import { mint } from "sdk/mint";
-import { decodeEditions } from "anchor/editions/accounts";
-import { getProgramInstanceEditions } from "anchor/editions/getProgramInstanceEditions";
-import { LibreWallet } from "anchor/LibreWallet";
+import { mint } from "../sdk/mint";
+import { decodeEditions } from "../anchor/editions/accounts";
+import { getProgramInstanceEditions } from "../anchor/editions/getProgramInstanceEditions";
+import { LibreWallet } from "../anchor/LibreWallet";
 
 const cli = new Command();
 
@@ -36,18 +35,32 @@ const opts = cli.opts();
 
   const editionsProgram = getProgramInstanceEditions(connection);
 
+  if (!editionsAccount) {
+    console.log(`Edition ${editionsPubkey.toBase58()} not found. Exiting.`);
+    return;
+  }
   const editions = decodeEditions(editionsProgram)(
     editionsAccount.data,
     editionsPubkey
   );
 
-  console.log(`Signing as ${signerKeypair.publicKey.toBase58()}`)
+  if (!editions?.item) {
+    console.log(
+      `Could not deserialize ${editionsPubkey.toBase58()}. Are you sure this is an editions account?`
+    );
+    return;
+  } else {
+    console.log(`Signing as ${signerKeypair.publicKey.toBase58()}`);
 
-  await mint({
-    wallet: new LibreWallet(signerKeypair),
-    params: {
-      editions,
-    },
-    connection,
-  });
+    await mint({
+      wallet: new LibreWallet(signerKeypair),
+      params: {
+        editions: {
+          item: editions.item!,
+          pubkey: editions.pubkey,
+        },
+      },
+      connection,
+    });
+  }
 })();
