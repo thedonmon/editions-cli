@@ -1,0 +1,2 @@
+export const DEPLOYMENT_TYPE_2022 = 3;
+export const DEPLOYMENT_TYPE_LEGACY = 0;
