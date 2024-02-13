@@ -3,9 +3,6 @@
 
 libreplex_editions allows the creation of open editions (copies of identical mints). the core program does not allow whitelists / creator fees. Both WL and creator fees are added via a separate wrapper contract.
 
-Responsive                     |  Desktop
-:-------------------------:|:-------------------------:
-![](scaffold-mobile.png)  |  ![](scaffold-desktop.png)
 
 ## Getting Started
 
