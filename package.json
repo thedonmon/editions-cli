@@ -5,6 +5,7 @@
   "license": "MIT",
   "scripts": {
     "createDeployment": "ts-node ./src/cli/createDeployment.ts",
+    "viewDeployment": "ts-node ./src/cli/viewDeployment.ts",
     "mint": "ts-node ./src/cli/mint.ts"
   },
   "resolutions": {
@@ -17,7 +18,7 @@
     "axios": "^1.6.5",
     "base32": "^0.0.7",
     "bn.js": "^5.2.1",
-    "bs58": "^5.0.0",
+    "bs58": "^5.0.0cp",
     "cids": "^1.1.9",
     "commander": "^12.0.0",
     "cookies": "^0.9.1",
@@ -36,6 +37,7 @@
     "autoprefixer": "^10.4.2",
     "eslint": "8.7.0",
     "patch-package": "^8.0.0",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "5.3.3"
   },
   "engines": {

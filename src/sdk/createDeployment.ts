@@ -4,6 +4,7 @@ import {
   SystemProgram,
   Transaction,
   TransactionInstruction,
+  PublicKey
 } from "@solana/web3.js";
 import BN from "bn.js";
 
@@ -24,7 +25,7 @@ export const createDeployment = async ({
   params,
   connection,
 }: IExecutorParams<IInitializeLaunch>) => {
-  
+
   const {
     symbol,
     jsonUrl,
@@ -71,12 +72,11 @@ export const createDeployment = async ({
   tx.sign(groupMint);
   await wallet.signTransaction(tx);
 
-
   const txid = await sendSignedTransaction({
     signedTransaction: tx,
     connection,
-    skipPreflight: false
+    skipPreflight: true
   });;
-  
+
   return {editionsPda}
 };
