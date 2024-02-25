@@ -14,7 +14,8 @@ cli
   .description("Add node id to the database")
   .requiredOption("-k, --keypairPath <keypairPath>", "Keypair")
   .requiredOption("-s, --symbol <symbol>", "Symbol")
-  .requiredOption("-j, --jsonUrl <jsonUrl>", "Json URL")
+  .requiredOption("-n, --name <name>", "Name (can include a template string: {})")
+  .requiredOption("-j, --jsonUrl <jsonUrl>", "Json URL (can include a template string: {})")
   .requiredOption("-t, --treasuryWallet <treasuryWallet>", "Treasury wallet")
   .requiredOption("--maxMintsPerWallet <maxMintsPerWallet>", "Max mints per wallet (total), 0 for unlimited")
   .requiredOption("--maxNumberOfTokens <maxNumberOfTokens>", "Max number of tokens (total), 0 for unlimited")
@@ -41,6 +42,7 @@ const opts = cli.opts();
     const {editionsPda} = await createDeployment({
       wallet,
       params: {
+        name: opts.name,
         symbol: opts.symbol,
         jsonUrl: opts.jsonUrl,
         treasury: opts.treasuryWallet,

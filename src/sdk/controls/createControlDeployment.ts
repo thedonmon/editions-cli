@@ -20,6 +20,7 @@ export interface IInitializeLaunch {
   symbol: string;
   jsonUrl: string;
   treasury: string;
+  name: string;
   maxMintsPerWallet: number; // set to 0 for unlimited
   maxNumberOfTokens: number; // set to 0 for unlimited
 }
@@ -35,6 +36,7 @@ export const createDeployment = async ({
     treasury,
     maxMintsPerWallet,
     maxNumberOfTokens,
+    name
   } = params;
 
   const editionProgram = getProgramInstanceEditionsControls(connection);
@@ -57,7 +59,7 @@ export const createDeployment = async ({
         {
           maxNumberOfTokens: new BN(maxNumberOfTokens),
           symbol,
-          name: symbol,
+          name,
           offchainUrl: jsonUrl, // this points to ERC721 compliant JSON metadata
           creatorCosignProgramId: null,
           treasury: new PublicKey(treasury),
