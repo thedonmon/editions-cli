@@ -1,7 +1,7 @@
 export {};
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 
-import { createDeployment } from "sdk/createDeployment";
+import { createDeployment } from "sdk/editions/createDeployment";
 import fs from "fs";
 import { Command } from "commander";
 import { LibreWallet } from "anchor/LibreWallet";
@@ -44,6 +44,8 @@ const opts = cli.opts();
       tokensMinted: Number(deploymentObj.item.numberOfTokensIssued),
       offchainUrl: deploymentObj.item.offchainUrl,
       symbol: deploymentObj.item.symbol,
+      nameIsTemplate: deploymentObj.item.nameIsTemplate,
+      urlIsTemplate: deploymentObj.item.urlIsTemplate,
     })
 
   } catch (e) {

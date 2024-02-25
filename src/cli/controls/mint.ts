@@ -3,10 +3,10 @@ import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 
 import fs from "fs";
 import { Command } from "commander";
-import { mint } from "../sdk/mint";
-import { decodeEditions } from "../anchor/editions/accounts";
-import { getProgramInstanceEditions } from "../anchor/editions/getProgramInstanceEditions";
-import { LibreWallet } from "../anchor/LibreWallet";
+import { mint } from "../../sdk/editions/mint";
+import { decodeEditions } from "../../anchor/editions/accounts";
+import { getProgramInstanceEditions } from "../../anchor/editions/getProgramInstanceEditions";
+import { LibreWallet } from "../../anchor/LibreWallet";
 
 const cli = new Command();
 

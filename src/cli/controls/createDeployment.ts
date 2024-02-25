@@ -1,11 +1,11 @@
 export {};
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 
-import { createDeployment } from "../sdk/createDeployment";
+import { createDeployment } from "../../sdk/controls/createControlDeployment";
 import { Wallet as AnchorWallet, Program } from "@coral-xyz/anchor";
 import fs from "fs";
 import { Command } from "commander";
-import { LibreWallet } from "../anchor/LibreWallet";
+import { LibreWallet } from "../../anchor/LibreWallet";
 
 const cli = new Command();
 
@@ -15,6 +15,11 @@ cli
   .requiredOption("-k, --keypairPath <keypairPath>", "Keypair")
   .requiredOption("-s, --symbol <symbol>", "Symbol")
   .requiredOption("-j, --jsonUrl <jsonUrl>", "Json URL")
+  .requiredOption("-t, --treasuryWallet <treasuryWallet>", "Treasury wallet")
+  .requiredOption("--maxMintsPerWallet <maxMintsPerWallet>", "Max mints per wallet (total), 0 for unlimited")
+  .requiredOption("--maxNumberOfTokens <maxNumberOfTokens>", "Max number of tokens (total), 0 for unlimited")
+  
+
   .requiredOption("-r, --rpc <rpc>", "RPC")
   .parse(process.argv);
 // get all fair launches
@@ -38,6 +43,9 @@ const opts = cli.opts();
       params: {
         symbol: opts.symbol,
         jsonUrl: opts.jsonUrl,
+        treasury: opts.treasuryWallet,
+        maxMintsPerWallet: +opts.maxMintsPerWallet,
+        maxNumberOfTokens: +opts.maxNumberOfTokens,
       },
       connection,
     });

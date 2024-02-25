@@ -9,11 +9,11 @@ import {
 import BN from "bn.js";
 
 import { TOKEN_2022_PROGRAM_ID } from "spl-token-4";
-import { getProgramInstanceEditions } from "../anchor/editions/getProgramInstanceEditions";
-import { getEditionsPda } from "../anchor/editions/pdas/getEditionsPda";
-import { IExecutorParams } from "../cli/IExecutorParams";
-import { sendSignedTransaction } from "./tx_utils";
-import { getHashlistPda } from "../anchor/editions/pdas/getHashlistPda";
+import { getProgramInstanceEditions } from "../../anchor/editions/getProgramInstanceEditions";
+import { getEditionsPda } from "../../anchor/editions/pdas/getEditionsPda";
+import { IExecutorParams } from "../../cli/IExecutorParams";
+import { sendSignedTransaction } from "../tx_utils";
+import { getHashlistPda } from "../../anchor/editions/pdas/getHashlistPda";
 
 export interface IInitializeLaunch {
   symbol: string;
@@ -53,12 +53,12 @@ export const createDeployment = async ({
         creatorCosignProgramId: null,
       })
       .accounts({
-        systemProgram: SystemProgram.programId,
-        payer: wallet.publicKey,
-        groupMint: groupMint.publicKey,
-        hashlist,
         editionsDeployment: editionsPda,
+        hashlist,
+        payer: wallet.publicKey,
         creator: wallet.publicKey,
+        groupMint: groupMint.publicKey,
+        systemProgram: SystemProgram.programId,
         tokenProgram: TOKEN_2022_PROGRAM_ID,
       })
       .signers([groupMint])
@@ -75,7 +75,7 @@ export const createDeployment = async ({
   const txid = await sendSignedTransaction({
     signedTransaction: tx,
     connection,
-    skipPreflight: true
+    skipPreflight: false
   });;
 
   return {editionsPda}
