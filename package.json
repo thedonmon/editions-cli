@@ -8,8 +8,9 @@
     "core:viewDeployment": "ts-node ./src/cli/core/viewDeployment.ts",
     "core:mint": "ts-node ./src/cli/core/mint.ts",
     "controls:createDeployment": "ts-node ./src/cli/controls/createDeployment.ts",
+    "controls:addPhase": "ts-node ./src/cli/controls/addPhase.ts",
     "controls:viewDeployment": "ts-node ./src/cli/controls/viewDeployment.ts",
-    "controls:mint": "ts-node ./src/cli/controls/mint.ts"
+    "controls:mintWithControls": "ts-node ./src/cli/controls/mintWithControls.ts"
   },
   "resolutions": {
     "libp2p-crypto": "0.21.2"
