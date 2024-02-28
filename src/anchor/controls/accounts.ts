@@ -14,7 +14,7 @@ export const getBase64FromDatabytes = (dataBytes: Buffer, dataType: string) => {
   return `data:${dataType};base64,${base}`;
 };
 
-export const decodeCreatorControls =
+export const decodeEditionsControls =
   (program: Program<LibreplexEditionsControls>) =>
   (buffer: Buffer | undefined, pubkey: PublicKey) => {
     const coder = new BorshCoder(program.idl);

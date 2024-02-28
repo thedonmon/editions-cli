@@ -15,6 +15,7 @@ import { IExecutorParams } from "../../cli/IExecutorParams";
 import { sendSignedTransaction } from "../tx_utils";
 import { getHashlistPda } from "../../anchor/editions/pdas/getHashlistPda";
 import { getProgramInstanceEditionsControls } from "anchor/controls/getProgramInstanceEditionsControls";
+import { getEditionsControlsPda } from "anchor/controls/pdas/getEditionsControlsPda";
 
 export interface IInitializeLaunch {
   symbol: string;
@@ -39,35 +40,36 @@ export const createDeployment = async ({
     name
   } = params;
 
-  const editionProgram = getProgramInstanceEditionsControls(connection);
+  const editionsControlsProgram = getProgramInstanceEditionsControls(connection);
 
-  const editionsPda = getEditionsPda(symbol);
+  const editions = getEditionsPda(symbol);
+
+  const editionsControls = getEditionsControlsPda(editions)
 
   const groupMint = Keypair.generate();
-
-  const treasuryKey = new PublicKey(treasury);
   console.log({ groupMint: groupMint.publicKey.toBase58() });
 
-  const hashlist = getHashlistPda(editionsPda)[0];
+  const hashlist = getHashlistPda(editions)[0];
 
   const libreplexEditionsProgram = getProgramInstanceEditions(connection);
   const instructions: TransactionInstruction[] = [];
   /// creates an open editions launch
   instructions.push(
-    await editionProgram.methods
+    await editionsControlsProgram.methods
       .initialiseEditionsControls(
         {
           maxNumberOfTokens: new BN(maxNumberOfTokens),
           symbol,
           name,
           offchainUrl: jsonUrl, // this points to ERC721 compliant JSON metadata
-          creatorCosignProgramId: null,
+          cosignerProgramId: null,
           treasury: new PublicKey(treasury),
           maxMintsPerWallet: new BN(maxMintsPerWallet),
         }
       )
       .accounts({
-        editionsDeployment: editionsPda,
+        editionsControls,
+        editionsDeployment: editions,
         hashlist,
         payer: wallet.publicKey,
         creator: wallet.publicKey,
@@ -93,5 +95,5 @@ export const createDeployment = async ({
     skipPreflight: false,
   });
 
-  return { editionsPda };
+  return { editions, editionsControls };
 };

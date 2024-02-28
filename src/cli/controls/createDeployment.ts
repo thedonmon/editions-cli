@@ -11,15 +11,26 @@ const cli = new Command();
 
 cli
   .version("1.0.0")
-  .description("Add node id to the database")
+  .description("Create an editions account with controls")
   .requiredOption("-k, --keypairPath <keypairPath>", "Keypair")
   .requiredOption("-s, --symbol <symbol>", "Symbol")
-  .requiredOption("-n, --name <name>", "Name (can include a template string: {})")
-  .requiredOption("-j, --jsonUrl <jsonUrl>", "Json URL (can include a template string: {})")
+  .requiredOption(
+    "-n, --name <name>",
+    "Name (can include a template string: {})"
+  )
+  .requiredOption(
+    "-j, --jsonUrl <jsonUrl>",
+    "Json URL (can include a template string: {})"
+  )
   .requiredOption("-t, --treasuryWallet <treasuryWallet>", "Treasury wallet")
-  .requiredOption("--maxMintsPerWallet <maxMintsPerWallet>", "Max mints per wallet (total), 0 for unlimited")
-  .requiredOption("--maxNumberOfTokens <maxNumberOfTokens>", "Max number of tokens (total), 0 for unlimited")
-  
+  .requiredOption(
+    "--maxMintsPerWallet <maxMintsPerWallet>",
+    "Max mints per wallet (total), 0 for unlimited"
+  )
+  .requiredOption(
+    "--maxNumberOfTokens <maxNumberOfTokens>",
+    "Max number of tokens (total), 0 for unlimited"
+  )
 
   .requiredOption("-r, --rpc <rpc>", "RPC")
   .parse(process.argv);
@@ -32,14 +43,13 @@ const opts = cli.opts();
 
   const connection = new Connection(opts.rpc);
 
-  
   const keyfile = JSON.parse(fs.readFileSync(opts.keypairPath, "utf8"));
 
   const signerKeypair = Keypair.fromSecretKey(new Uint8Array(keyfile));
   const wallet = new LibreWallet(signerKeypair);
 
   try {
-    const {editionsPda} = await createDeployment({
+    const { editions, editionsControls } = await createDeployment({
       wallet,
       params: {
         name: opts.name,
@@ -52,7 +62,9 @@ const opts = cli.opts();
       connection,
     });
 
-    console.log(`New edition id: ${editionsPda.toBase58()}`);
+    console.log(
+      `New edition id: ${editions.toBase58()}, controls: ${editionsControls.toBase58()}}`
+    );
   } catch (e) {
     console.log({ e });
   }
