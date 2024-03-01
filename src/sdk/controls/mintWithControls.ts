@@ -29,6 +29,7 @@ import { decodeEditionsControls } from "anchor/controls/accounts";
 export interface IMintWithControls {
   phaseIndex: number;
   editionsId: string;
+  numberOfMints: number;
 }
 
 export const mintWithControls = async ({
@@ -36,7 +37,7 @@ export const mintWithControls = async ({
   params,
   connection,
 }: IExecutorParams<IMintWithControls>) => {
-  const { phaseIndex, editionsId } = params;
+  const { phaseIndex, editionsId, numberOfMints } = params;
 
   const editionsControlsProgram =
     getProgramInstanceEditionsControls(connection);
@@ -72,69 +73,91 @@ export const mintWithControls = async ({
   const minterStats = getMinterStatsPda(editions, wallet.publicKey)[0];
 
   const minterStatsPhase = getMinterStatsPhasePda(
-    editions, 
+    editions,
     wallet.publicKey,
     phaseIndex
   )[0];
 
-  const mint = Keypair.generate();
+  let remainingMints = numberOfMints;
 
-  const tokenAccount = getAssociatedTokenAddressSync(
-    mint.publicKey,
-    wallet.publicKey,
-    false,
-    TOKEN_2022_PROGRAM_ID
-  );
+  let txs: Transaction[] = [];
 
-  const hashlistMarker = getHashlistMarkerPda(editions, mint.publicKey)[0];
-  const instructions: TransactionInstruction[] = [];
-  /// creates an open editions launch
+  while (remainingMints > 0) {
+    const instructions: TransactionInstruction[] = [];
+    /// creates an open editions launch
 
-  instructions.push(
-    ComputeBudgetProgram.setComputeUnitLimit({
-      units: 850_000,
+    instructions.push(
+      ComputeBudgetProgram.setComputeUnitLimit({
+        units: 850_000,
+      })
+    );
+
+    const mints: Keypair[] = [];
+
+    // 3 per transaction max
+    for (let i = 0; i < Math.min(3, remainingMints); ++i) {
+      const mint = Keypair.generate();
+
+      mints.push(mint);
+
+      const tokenAccount = getAssociatedTokenAddressSync(
+        mint.publicKey,
+        wallet.publicKey,
+        false,
+        TOKEN_2022_PROGRAM_ID
+      );
+
+      const hashlistMarker = getHashlistMarkerPda(editions, mint.publicKey)[0];
+
+      instructions.push(
+        await editionsControlsProgram.methods
+          .mintWithControls({
+            phaseIndex,
+          })
+          .accounts({
+            editionsDeployment: editions,
+            editionsControls: editionsControlsPda,
+            hashlist,
+            hashlistMarker,
+            payer: wallet.publicKey,
+            mint: mint.publicKey,
+            signer: wallet.publicKey,
+            minter: wallet.publicKey,
+            minterStats,
+            minterStatsPhase,
+            groupMint: editionsObj.item.groupMint,
+            tokenAccount,
+            treasury: editionsControlsObj.item.treasury,
+            systemProgram: SystemProgram.programId,
+            tokenProgram: TOKEN_2022_PROGRAM_ID,
+            libreplexEditionsProgram: libreplexEditionsProgram.programId,
+          })
+          .signers([mint])
+          .instruction()
+      );
+    }
+
+    remainingMints -= 3;
+
+    // transaction boilerplate - ignore for now
+    const tx = new Transaction().add(...instructions);
+    tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+    tx.feePayer = wallet.publicKey;
+    tx.sign(...mints);
+    txs.push(tx);
+  }
+
+  await wallet.signAllTransactions(txs);
+
+  const promises = txs.map((item) =>
+    sendSignedTransaction({
+      signedTransaction: item,
+      connection,
+      skipPreflight: false,
     })
   );
 
-  instructions.push(
-    await editionsControlsProgram.methods
-      .mintWithControls({
-        phaseIndex,
-      })
-      .accounts({
-        editionsDeployment: editions,
-        editionsControls: editionsControlsPda,
-        hashlist,
-        hashlistMarker,
-        payer: wallet.publicKey,
-        mint: mint.publicKey,
-        signer: wallet.publicKey,
-        minter: wallet.publicKey,
-        minterStats,
-        minterStatsPhase,
-        groupMint: editionsObj.item.groupMint,
-        tokenAccount,
-        treasury: editionsControlsObj.item.treasury,
-        systemProgram: SystemProgram.programId,
-        tokenProgram: TOKEN_2022_PROGRAM_ID,
-        libreplexEditionsProgram: libreplexEditionsProgram.programId,
-      })
-      .signers([mint])
-      .instruction()
-  );
-
-  // transaction boilerplate - ignore for now
-  const tx = new Transaction().add(...instructions);
-  tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
-  tx.feePayer = wallet.publicKey;
-  tx.sign(mint);
-  await wallet.signTransaction(tx);
-
-  const txid = await sendSignedTransaction({
-    signedTransaction: tx,
-    connection,
-    skipPreflight: false,
-  });
+  await Promise.all(promises);
 
   return { editions, editionsControls: editionsControlsPda };
 };

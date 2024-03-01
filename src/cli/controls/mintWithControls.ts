@@ -17,6 +17,7 @@ cli
   .requiredOption("-d, --deploymentId <deploymentId>", "Deployment id")
   .requiredOption("-r, --rpc <rpc>", "RPC")
   .requiredOption("-p, --phaseIndex <phaseIndex>", "Phase index")
+  .requiredOption("-n, --numberOfMints <numberOfMints>", "Number of mints")
   .parse(process.argv);
 // get all fair launches
 
@@ -36,7 +37,10 @@ const opts = cli.opts();
     params: {
       editionsId: opts.deploymentId,
       phaseIndex: +opts.phaseIndex,
+      numberOfMints: +opts.numberOfMints
     },
     connection,
+  }).finally(()=>{
+    console.log("Finished")
   });
 })();
