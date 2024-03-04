@@ -16,6 +16,8 @@ cli
   .requiredOption("-k, --keypairPath <keypairPath>", "Keypair")
   .requiredOption("-r, --rpc <rpc>", "RPC")
   .requiredOption("-d, --deploymentId <deploymentId>", "controls ID")
+  .option("-s, --startTime <startTime>", "start time")
+  .option("-e, --endTime <endTime>", "end time")
   .requiredOption("--maxMintsPerWallet <maxMintsPerWallet>", "Max mints per wallet (total), 0 for unlimited")
   .requiredOption("--maxMintsTotal <maxMintsTotal>", "Max mints per phase (total across all wallets), 0 for unlimited")
   .requiredOption("--priceAmount <priceAmount>", "Price per mint in lamports, can be 0")
@@ -39,6 +41,10 @@ const opts = cli.opts();
         priceAmount: +opts.priceAmount,
         maxMintsTotal: +opts.maxMintsTotal,
         deploymentId: opts.deploymentId,
+        startTime: opts.startTime ? +opts.startTime : undefined,
+        endTime: opts.endTime ? +opts.endTime : undefined,
+         
+
       },
       connection,
     });

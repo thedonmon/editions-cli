@@ -20,6 +20,8 @@ export interface IAddPhase {
   priceAmount: number,
   maxMintsTotal: number,
   deploymentId: string,
+  startTime: number | undefined,
+  endTime: number | undefined
 }
 
 export const addPhase = async ({
@@ -32,6 +34,8 @@ export const addPhase = async ({
     priceAmount,
     maxMintsTotal,
     maxMintsPerWallet,
+    startTime,
+    endTime
   } = params;
 
   const editionProgram = getProgramInstanceEditionsControls(connection);
@@ -40,22 +44,22 @@ export const addPhase = async ({
   const instructions: TransactionInstruction[] = [];
   /// creates an open editions launch
 
-  const endTime = new BN(9007199254740991);
-
+  
 
   const controls = getEditionsControlsPda(new PublicKey(deploymentId))
 
+  console.log(`Creating phase with start time ${startTime}, end time ${endTime}`);
   instructions.push(
     await editionProgram.methods
       .addPhase(
         {
           priceAmount: new BN(priceAmount),
           priceToken: new PublicKey("So11111111111111111111111111111111111111112"),
-          startTime: new BN(new Date().getTime()/1000),
+          startTime: startTime ? new BN(startTime) : new BN(new Date().getTime()/1000),
           maxMintsPerWallet: new BN(maxMintsPerWallet),
           maxMintsTotal: new BN(maxMintsTotal),
           /// max i64 value - this is open ended
-          endTime
+          endTime: endTime ? new BN(endTime) : new BN(9007199254740991)
 
         }
       )
