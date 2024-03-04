@@ -55,11 +55,11 @@ export const addPhase = async ({
         {
           priceAmount: new BN(priceAmount),
           priceToken: new PublicKey("So11111111111111111111111111111111111111112"),
-          startTime: startTime ? new BN(startTime) : new BN(new Date().getTime()/1000),
+          startTime: startTime !== undefined ? new BN(startTime) : new BN(new Date().getTime()/1000),
           maxMintsPerWallet: new BN(maxMintsPerWallet),
           maxMintsTotal: new BN(maxMintsTotal),
           /// max i64 value - this is open ended
-          endTime: endTime ? new BN(endTime) : new BN(9007199254740991)
+          endTime: endTime !== undefined ? new BN(endTime) : new BN(9007199254740991)
 
         }
       )
