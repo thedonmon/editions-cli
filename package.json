@@ -6,6 +6,7 @@
   "scripts": {
     "core:createDeployment": "ts-node ./src/cli/core/createDeployment.ts",
     "core:viewDeployment": "ts-node ./src/cli/core/viewDeployment.ts",
+    "core:queryGroupMembers": "ts-node ./src/cli/core/queryGroupMembers.ts",
     "core:mint": "ts-node ./src/cli/core/mint.ts",
     "controls:createDeployment": "ts-node ./src/cli/controls/createDeployment.ts",
     "controls:addPhase": "ts-node ./src/cli/controls/addPhase.ts",

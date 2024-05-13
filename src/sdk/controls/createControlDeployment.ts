@@ -16,6 +16,7 @@ import { sendSignedTransaction } from "../tx_utils";
 import { getHashlistPda } from "../../anchor/editions/pdas/getHashlistPda";
 import { getProgramInstanceEditionsControls } from "anchor/controls/getProgramInstanceEditionsControls";
 import { getEditionsControlsPda } from "anchor/controls/pdas/getEditionsControlsPda";
+import { PROGRAM_ID_GROUP_EXTENSIONS } from "sdk/editions/createDeployment";
 
 export interface IInitializeLaunch {
   symbol: string;
@@ -47,6 +48,7 @@ export const createDeployment = async ({
   const editionsControls = getEditionsControlsPda(editions)
 
   const groupMint = Keypair.generate();
+  const group = Keypair.generate();
   console.log({ groupMint: groupMint.publicKey.toBase58() });
 
   const hashlist = getHashlistPda(editions)[0];
@@ -74,11 +76,13 @@ export const createDeployment = async ({
         payer: wallet.publicKey,
         creator: wallet.publicKey,
         groupMint: groupMint.publicKey,
+        group: group.publicKey,
         systemProgram: SystemProgram.programId,
         tokenProgram: TOKEN_2022_PROGRAM_ID,
-        libreplexEditionsProgram: libreplexEditionsProgram.programId
+        libreplexEditionsProgram: libreplexEditionsProgram.programId,
+        groupExtensionProgram: PROGRAM_ID_GROUP_EXTENSIONS,
       })
-      .signers([groupMint])
+      .signers([groupMint, group])
       .instruction()
   );
 
@@ -86,7 +90,7 @@ export const createDeployment = async ({
   const tx = new Transaction().add(...instructions);
   tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
   tx.feePayer = wallet.publicKey;
-  tx.sign(groupMint);
+  tx.sign(groupMint, group);
   await wallet.signTransaction(tx);
 
   const txid = await sendSignedTransaction({

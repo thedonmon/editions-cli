@@ -25,12 +25,15 @@ import { decodeEditions } from "anchor/editions/accounts";
 import { getMinterStatsPda } from "anchor/controls/pdas/getMinterStatsPda";
 import { getMinterStatsPhasePda } from "anchor/controls/pdas/getMinterStatsPhasePda";
 import { decodeEditionsControls } from "anchor/controls/accounts";
+import { PROGRAM_ID_GROUP_EXTENSIONS } from "sdk/editions/createDeployment";
 
 export interface IMintWithControls {
   phaseIndex: number;
   editionsId: string;
   numberOfMints: number;
 }
+
+const MAX_MINTS_PER_TRANSACTION = 3;
 
 export const mintWithControls = async ({
   wallet,
@@ -93,12 +96,14 @@ export const mintWithControls = async ({
     );
 
     const mints: Keypair[] = [];
+    const members: Keypair[] = [];
 
-    // 3 per transaction max
-    for (let i = 0; i < Math.min(3, remainingMints); ++i) {
+    for (let i = 0; i < Math.min(MAX_MINTS_PER_TRANSACTION, remainingMints); ++i) {
       const mint = Keypair.generate();
+      const member = Keypair.generate();
 
       mints.push(mint);
+      members.push(member);
 
       const tokenAccount = getAssociatedTokenAddressSync(
         mint.publicKey,
@@ -121,29 +126,31 @@ export const mintWithControls = async ({
             hashlistMarker,
             payer: wallet.publicKey,
             mint: mint.publicKey,
+            member: member.publicKey,
             signer: wallet.publicKey,
             minter: wallet.publicKey,
             minterStats,
             minterStatsPhase,
-            groupMint: editionsObj.item.groupMint,
+            group: editionsObj.item.group,
+            groupExtensionProgram: PROGRAM_ID_GROUP_EXTENSIONS,
             tokenAccount,
             treasury: editionsControlsObj.item.treasury,
             systemProgram: SystemProgram.programId,
             tokenProgram: TOKEN_2022_PROGRAM_ID,
             libreplexEditionsProgram: libreplexEditionsProgram.programId,
           })
-          .signers([mint])
+          .signers([mint, member])
           .instruction()
       );
     }
 
-    remainingMints -= 3;
+    remainingMints -= MAX_MINTS_PER_TRANSACTION;
 
     // transaction boilerplate - ignore for now
     const tx = new Transaction().add(...instructions);
     tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
     tx.feePayer = wallet.publicKey;
-    tx.sign(...mints);
+    tx.sign(...mints, ...members);
     txs.push(tx);
   }
 

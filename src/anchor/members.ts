@@ -13,29 +13,18 @@ import {
 } from "@solana/spl-token-metadata";
 import { AccountInfo, PublicKey } from "@solana/web3.js";
 
-export const decodeMint2022 = (
+export const decodeMember2022 = (
   accountInfo: AccountInfo<Buffer>,
   pubkey: PublicKey
 ) => {
   try {
-    let unpacked: Mint & { metadata?: TokenMetadata } = unpackMint(
-      pubkey,
-      accountInfo,
-      accountInfo.owner
-    );
-    const extensionTypes = getExtensionTypes(unpacked.tlvData);
-    for (const extensionType of extensionTypes) {
-      let extensionData = getExtensionData(extensionType, unpacked.tlvData);
-      if (extensionType === ExtensionType.TokenMetadata) {
-        unpacked = {
-          ...unpacked,
-          metadata: unpackTokenMetadata(extensionData),
-        };
-      }
-    }
-
+   
     return {
-      item: unpacked ?? null, //metadata ?? null,
+      item:{
+        mint: new PublicKey(accountInfo.data.subarray(12,12+32)),
+        group: new PublicKey(accountInfo.data.subarray(44,44+32))
+      },
+
       pubkey,
     };
   } catch (e) {

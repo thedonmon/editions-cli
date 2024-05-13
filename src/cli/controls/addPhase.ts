@@ -33,6 +33,7 @@ const opts = cli.opts();
   const signerKeypair = Keypair.fromSecretKey(new Uint8Array(keyfile));
   const wallet = new LibreWallet(signerKeypair);
   
+  console.log(opts)
   try {
     const {txid} = await addPhase({
       wallet,

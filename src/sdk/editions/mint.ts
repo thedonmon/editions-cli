@@ -20,6 +20,7 @@ import { IExecutorParams } from "../../cli/IExecutorParams";
 import { IRpcObject } from "../../utils/IRpcObject";
 import { getHashlistPda } from "../../anchor/editions/pdas/getHashlistPda";
 import { getHashlistMarkerPda } from "../../anchor/editions/pdas/getHashlistMarkerPda";
+import { PROGRAM_ID_GROUP_EXTENSIONS } from "./createDeployment";
 
 export const PROGRAM_ID_LEGACY_METADATA = new PublicKey(
   "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
@@ -47,6 +48,7 @@ export const mint = async ({
   const hashlist = getHashlistPda(editions.pubkey)[0];
 
   const mint = Keypair.generate();
+  const member = Keypair.generate();
 
   const hashlistMarker = getHashlistMarkerPda(
     editions.pubkey,
@@ -71,6 +73,22 @@ export const mint = async ({
   // console.log('LKJHLKJHLKJH', deploymentConfig?.item?.cosignerProgramId?.toString());
   const remainingAccounts: AccountMeta[] = [];
 
+  console.log({
+    editionsDeployment: editions.pubkey.toBase58(),
+    payer: wallet.publicKey.toBase58(),
+    signer: wallet.publicKey.toBase58(),
+    minter: wallet.publicKey.toBase58(),
+    mint: mint.publicKey.toBase58(),
+    member: member.publicKey.toBase58(),
+    hashlist: hashlist.toBase58(),
+    hashlistMarker: hashlistMarker.toBase58(),
+    groupMint: editions.item.groupMint.toBase58(),
+    tokenAccount: tokenAccount.toBase58(),
+    tokenProgram: TOKEN_2022_PROGRAM_ID.toBase58(),
+    associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID.toBase58(),
+    systemProgram: SystemProgram.programId.toBase58(),
+    groupExtensionProgram: PROGRAM_ID_GROUP_EXTENSIONS.toBase58()})
+
   const ix = await editionsProgram.methods
     .mint()
     .accounts({
@@ -79,15 +97,17 @@ export const mint = async ({
       signer: wallet.publicKey,
       minter: wallet.publicKey,
       mint: mint.publicKey,
+      member: member.publicKey,
       hashlist,
       hashlistMarker,
-      groupMint: editions.item.groupMint,
+      group: editions.item.group,
       tokenAccount,
       tokenProgram: TOKEN_2022_PROGRAM_ID,
       associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
       systemProgram: SystemProgram.programId,
+      groupExtensionProgram: PROGRAM_ID_GROUP_EXTENSIONS
     })
-    .signers([mint])
+    .signers([mint, member])
     .remainingAccounts(remainingAccounts)
     .instruction();
 
@@ -95,7 +115,7 @@ export const mint = async ({
   const tx = new Transaction().add(...instructions);
   tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
   tx.feePayer = wallet.publicKey;
-  tx.sign(mint);
+  tx.sign(mint, member);
 
   await wallet.signTransaction(tx);
   await sendSignedTransaction({
