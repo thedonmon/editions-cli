@@ -14,10 +14,10 @@ cli
   .description("Add node id to the database")
   .requiredOption("-k, --keypairPath <keypairPath>", "Keypair")
   .requiredOption("-s, --symbol <symbol>", "Symbol")
-  .requiredOption("-mt, --maxTokens <maxTokens>", "Max tokens")
   .requiredOption("-j, --jsonUrl <jsonUrl>", "Json URL")
   .requiredOption("-r, --rpc <rpc>", "RPC")
   .option("-n, --name <name>", "Name")
+  .option("-mt, --maxTokens <maxTokens>", "Max tokens")
   .parse(process.argv);
 // get all fair launches
 
@@ -39,7 +39,7 @@ const opts = cli.opts();
       params: {
         symbol: opts.symbol,
         jsonUrl: opts.jsonUrl,
-        maxTokens: opts.maxTokens,
+        maxTokens: opts.maxTokens ?? 0,
         name: opts.name ?? opts.symbol
       },
       connection,
