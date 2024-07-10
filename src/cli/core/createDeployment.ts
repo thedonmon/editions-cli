@@ -14,15 +14,16 @@ cli
   .description("Add node id to the database")
   .requiredOption("-k, --keypairPath <keypairPath>", "Keypair")
   .requiredOption("-s, --symbol <symbol>", "Symbol")
+  .requiredOption("-mt, --maxTokens <maxTokens>", "Max tokens")
   .requiredOption("-j, --jsonUrl <jsonUrl>", "Json URL")
   .requiredOption("-r, --rpc <rpc>", "RPC")
+  .option("-n, --name <name>", "Name")
   .parse(process.argv);
 // get all fair launches
 
 const opts = cli.opts();
 
 (async () => {
-  console.log("test");
 
   const connection = new Connection(opts.rpc);
 
@@ -38,6 +39,8 @@ const opts = cli.opts();
       params: {
         symbol: opts.symbol,
         jsonUrl: opts.jsonUrl,
+        maxTokens: opts.maxTokens,
+        name: opts.name ?? opts.symbol
       },
       connection,
     });
